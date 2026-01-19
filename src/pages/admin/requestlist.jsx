@@ -1,22 +1,34 @@
 import { useNavigate } from "react-router-dom";
 import { FaFileAlt, FaCalendarAlt, FaSearch } from "react-icons/fa";
+import { useEffect, useState } from "react";
 
 export default function RequestListPage() {
   const navigate = useNavigate();
     
   const branches = ["001 หาดใหญ่", "002 สงขลา", "ส่วนกลาง"];
   const statuses = ["รออนุมัติ", "อนุมัติแล้ว", "ไม่อนุมัติ"];
-  // ข้อมูลสมมติตามภาพ image_f6710c.png
-  const requests = [
-    { 
-      id: "REQ-25-012", 
-      date: "22/14/35", 
-      requester: "วาสนา จิตใจ", 
-      branch: "001 หาดใหญ่",  
-      count: 3, 
-      status: "รออนุมัติ" 
-    },
-  ];
+  const [requests, setRequests] = useState([]);
+
+useEffect(() => {
+  const fetchRequests = () => {
+    let data = JSON.parse(localStorage.getItem("admin_requests"));
+    
+    // ถ้าไม่มีข้อมูลในเครื่องเลย ให้ใช้ข้อมูลสมมติและบันทึกไว้
+    if (!data || data.length === 0) {
+      data = [
+        { id: "REQ-2025-0012", date: "21/11/67", requester: "อารีภาพ ใจดี", branch: "001 หาดใหญ่", count: "ผสม", status: "รออนุมัติ" },
+        { id: "REQ-2025-0013", date: "22/11/67", requester: "สมศักดิ์ รักงาน", branch: "ส่วนกลาง", count: "10", status: "รออนุมัติ" }
+      ];
+      localStorage.setItem("admin_requests", JSON.stringify(data));
+    }
+    setRequests(data);
+  };
+
+  fetchRequests();
+  window.addEventListener("request_status_updated", fetchRequests);
+  return () => window.removeEventListener("request_status_updated", fetchRequests);
+}, []);
+ 
 
   return (
     <div className="p-5 bg-gray-100 min-h-screen text-left">
@@ -102,7 +114,7 @@ export default function RequestListPage() {
                 </td>
                 <td className="px-6 py-5 text-sm">
                   <button 
-                    onClick={() => navigate(`/admin/requests/${req.id}`)}
+                    onClick={() => navigate(`/admin/request-detail/${req.id}`)}
                     className="text-blue-400 hover:underline"
                   >
                     ดูรายละเอียด

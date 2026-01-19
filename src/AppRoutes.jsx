@@ -14,6 +14,7 @@ import AddMaterials from "./pages/admin/addmaterial";
 import MaterialDetail from "./pages/admin/materialdetail";
 import AdminUserManagement from "./pages/admin/usermanagement";
 import AdminRequestListPage from "./pages/admin/requestlist";
+import AdminRequestDetailPage from "./pages/admin/requestdetail";
 
 export default function AppRoutes() {
   return (
@@ -35,6 +36,7 @@ export default function AppRoutes() {
       <Route path="/admin/materials/:id" element={<MaterialDetail />} />
       <Route path="/admin/users" element={<AdminUserManagement />} />
       <Route path="/admin/requests" element={<AdminRequestListPage />} />
+      <Route path="/admin/request-detail/:id" element={<AdminRequestDetailPage />} />
     </Routes>
   );
 }

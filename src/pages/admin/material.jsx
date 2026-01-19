@@ -44,7 +44,8 @@ export default function AdminMaterials() {
             <div className="bg-black p-3 rounded-xl text-white shadow-lg"><FaHome size={24} /></div>
             <h1 className="text-xl font-bold text-gray-800">รายการวัสดุสำนักงาน</h1>
           </div>
-          <button onClick={() => navigate("/admin/material/add")} className="bg-black text-white px-5 py-3 rounded-xl flex items-center gap-2 font-bold text-sm shadow-md active:scale-95 transition-all">
+          <button onClick={() => navigate("/admin/material/add")}
+            className="bg-black text-white px-5 py-3 rounded-xl flex items-center gap-2 font-bold text-sm shadow-md active:scale-95 transition-all">
            <FaPlus size={14} /> เพิ่มรายการวัสดุ
           </button>
         </div>
