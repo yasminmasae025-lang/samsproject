@@ -36,7 +36,7 @@ export default function AdminSidebar() {
     {
       title: "จัดการตรวจสอบการอนุมัติการเบิก",
       items: [
-        { name: "รายการเบิก", path: "/admin/approve-requests", icon: <FaCheckSquare /> },
+        { name: "รายการเบิก", path: "/admin/requests", icon: <FaCheckSquare /> },
       ]
     },
     {
@@ -83,7 +83,7 @@ export default function AdminSidebar() {
       <nav className="flex-1 px-4 pb-10">
         {menuGroups.map((group, idx) => (
           <div key={idx} className="mb-6">
-            <h3 className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <h3 className="px-4 text-xs font-semibold text-black uppercase tracking-wider mb-2">
               {group.title}
             </h3>
             <div className="space-y-1">

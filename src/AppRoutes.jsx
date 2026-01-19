@@ -9,7 +9,11 @@ import HistoryPage from "./pages/user/history";
 import ProfilePage from "./pages/user/profile";
 import LoginPage from "./pages/auth/loginpage";
 import AdminDashboard from "./pages/admin/dashboard";
-
+import AdminMaterials from "./pages/admin/material";
+import AddMaterials from "./pages/admin/addmaterial";
+import MaterialDetail from "./pages/admin/materialdetail";
+import AdminUserManagement from "./pages/admin/usermanagement";
+import AdminRequestListPage from "./pages/admin/requestlist";
 
 export default function AppRoutes() {
   return (
@@ -26,7 +30,11 @@ export default function AppRoutes() {
       <Route path="/profile" element={<ProfilePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/admin/dashboard" element={<AdminDashboard/>} />
-      <Route path="/admin/manage-requests" element={<div>หน้าจัดการคําขอ</div>} />
+      <Route path="/admin/materials" element={<AdminMaterials />} />
+      <Route path="/admin/material/add" element={<AddMaterials />} />
+      <Route path="/admin/materials/:id" element={<MaterialDetail />} />
+      <Route path="/admin/users" element={<AdminUserManagement />} />
+      <Route path="/admin/requests" element={<AdminRequestListPage />} />
     </Routes>
   );
 }

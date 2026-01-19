@@ -17,11 +17,11 @@ export default function AdminDashboard() {
       {/* Stats Grid - การ์ดสรุปตัวเลข */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-5">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-50 flex items-center gap-4">
-            <div className="p-4 bg-gray-50 rounded-xl text-2xl">{stat.icon}</div>
+          <div key={i} className="bg-white py-3 px-6 rounded-2xl shadow-sm border border-gray-50 flex items-center gap-4">
+            <div className="p-2.5 bg-gray-50 rounded-xl text-xl flex-shrink-0">{stat.icon}</div>
             <div>
-              <p className="text-xl font-bold">{stat.value}</p>
-              <p className="text-xs text-gray-500">{stat.label}</p>
+              <p className="text-lg font-bold leading-tight">{stat.value}</p>
+              <p className="text-[10px] text-gray-500 leading-tight">{stat.label}</p>
             </div>
           </div>
         ))}

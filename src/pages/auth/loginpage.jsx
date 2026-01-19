@@ -17,7 +17,7 @@ export default function LoginPage() {
     navigate("/admin/dashboard"); 
   } else {
     // ถ้าเลือกเป็น User ให้ไปหน้าแรกของ User ปกติ
-    navigate("/user/meterial"); 
+    navigate("/user/material"); 
   }
 };
 
