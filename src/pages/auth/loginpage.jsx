@@ -5,21 +5,62 @@ import MyLogo from "../../assets/mylogo.png";
 export default function LoginPage() {
   // 1. สร้าง State เพื่อเลือกว่าเป็น Admin หรือ User (ค่าเริ่มต้นเป็น User)
   const [role, setRole] = useState("user"); 
-  const [email, setEmail] = useState("");
+  const [empCode, setEmpCode] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
   e.preventDefault();
-  
-  if (role === "admin") {
-    // ถ้าเลือกเป็น Admin ให้ไปที่หน้า Dashboard ของ Admin
-    navigate("/admin/dashboard"); 
-  } else {
-    // ถ้าเลือกเป็น User ให้ไปหน้าแรกของ User ปกติ
-    navigate("/user/meterial"); 
-  }
-};
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          emp_code: empCode,
+          password: password, // 🔑 ส่งรหัสผ่านจริง
+        }),
+      });
+
+      if (!res.ok) {
+        alert("รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง");
+        return;
+      }
+
+      //const data = await res.json(); // ✅ ประกาศ data ให้ถูก
+      const result = await res.json();
+
+      //const user = data.user; // backend ส่ง user มา
+      const user = result.user;
+
+      // 🔐 เช็ค role ฝั่ง frontend (ตาม UX ที่วาวาทำ)
+      if (role === "admin" && user.role !== "Admin" && user.role !== "Superadmin") {
+        alert("คุณไม่มีสิทธิ์เข้าโหมด Admin");
+        return;
+      }
+
+      // ✅ เก็บข้อมูลผู้ใช้
+      // localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("user", JSON.stringify(result.user));
+
+      // 🚀 redirect
+      // 🔐 เช็คสิทธิ์จริงจาก backend
+      if (user.role === "Superadmin") {
+        navigate("/admin/dashboard");
+      } else {
+        // User + Admin ใช้หน้าเดียวกัน
+        navigate("/user/material");
+      }
+
+    } catch (error) {
+      console.error(error);
+      alert("เชื่อมต่อ backend ไม่ได้");
+    }
+  };
+
+
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center p-4 relative">
@@ -61,15 +102,23 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} className="space-y- text-left">
             {/* Input อีเมล */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-900 ml-1">อีเมล</label>
+              <label className="text-xs font-bold text-gray-900 ml-1">รหัสพนักงาน</label>
               <input
+                type="text"
+                placeholder="EMP001"
+                value={empCode}
+                onChange={(e) => setEmpCode(e.target.value)}
+                className="w-full px-5 py-4 rounded-2xl bg-[#F8F9FA] border-none outline-none focus:ring-2 focus:ring-black/5 text-sm"
+                required
+              />
+              {/* <input
                 type="email"
                 placeholder="min123@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-5 py-4 rounded-2xl bg-[#F8F9FA] border-none outline-none focus:ring-2 focus:ring-black/5 text-sm"
                 required
-              />
+              /> */}
             </div>
 
             {/* Input รหัสผ่าน */}
