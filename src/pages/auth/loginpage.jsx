@@ -11,56 +11,15 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
   e.preventDefault();
-
-    try {
-      const res = await fetch("http://127.0.0.1:8000/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          emp_code: empCode,
-          password: password, // 🔑 ส่งรหัสผ่านจริง
-        }),
-      });
-
-      if (!res.ok) {
-        alert("รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง");
-        return;
-      }
-
-      //const data = await res.json(); // ✅ ประกาศ data ให้ถูก
-      const result = await res.json();
-
-      //const user = data.user; // backend ส่ง user มา
-      const user = result.user;
-
-      // 🔐 เช็ค role ฝั่ง frontend (ตาม UX ที่วาวาทำ)
-      if (role === "admin" && user.role !== "Admin" && user.role !== "Superadmin") {
-        alert("คุณไม่มีสิทธิ์เข้าโหมด Admin");
-        return;
-      }
-
-      // ✅ เก็บข้อมูลผู้ใช้
-      // localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("user", JSON.stringify(result.user));
-
-      // 🚀 redirect
-      // 🔐 เช็คสิทธิ์จริงจาก backend
-      if (user.role === "Superadmin") {
-        navigate("/admin/dashboard");
-      } else {
-        // User + Admin ใช้หน้าเดียวกัน
-        navigate("/user/material");
-      }
-
-    } catch (error) {
-      console.error(error);
-      alert("เชื่อมต่อ backend ไม่ได้");
-    }
-  };
-
-
+  
+  if (role === "admin") {
+    // ถ้าเลือกเป็น Admin ให้ไปที่หน้า Dashboard ของ Admin
+    navigate("/admin/dashboard"); 
+  } else {
+    // ถ้าเลือกเป็น User ให้ไปหน้าแรกของ User ปกติ
+    navigate("/user/meterial"); 
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#F8F9FA] flex flex-col items-center justify-center p-4 relative">

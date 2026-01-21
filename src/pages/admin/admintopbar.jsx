@@ -18,6 +18,7 @@ export default function AdminTopbar() {
     if (path === "/admin/approve-requests") return "รายการเบิก";
     if (path === "/admin/users") return "รายการผู้ใช้";
     if (path === "/admin/reports") return "รายการรายงานคงคลัง";
+    if (path === "/admin/material/add") return "เพิ่มรายการวัสดุสํานักงาน"
     return "Admin Panel";
   };
 
