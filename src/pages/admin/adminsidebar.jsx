@@ -22,18 +22,6 @@ export default function AdminSidebar() {
       ]
     },
     {
-      title: "จัดการครุภัณฑ์",
-      items: [
-        { name: "รายการครุภัณฑ์", path: "/admin/equipment", icon: <FaLaptop /> },
-      ]
-    },
-    {
-      title: "จัดการตรวจสอบการขอคืนครุภัณฑ์",
-      items: [
-        { name: "รายการคำขอคืนครุภัณฑ์", path: "/admin/returns", icon: <FaClipboardList /> },
-      ]
-    },
-    {
       title: "จัดการตรวจสอบการอนุมัติการเบิก",
       items: [
         { name: "รายการเบิก", path: "/admin/requests", icon: <FaCheckSquare /> },
@@ -48,7 +36,7 @@ export default function AdminSidebar() {
     {
       title: "จัดการรายงานคงคลัง",
       items: [
-        { name: "รายการรายงานคงคลัง", path: "/admin/reports", icon: <FaChartBar /> },
+        { name: "รายการรายงานคงคลัง", path: "/admin/inventory", icon: <FaChartBar /> },
       ]
     }
   ];

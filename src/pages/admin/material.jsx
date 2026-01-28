@@ -61,7 +61,7 @@ export default function AdminMaterials() {
       </div>
 
       {/* ตารางข้อมูล - สำคัญ: ต้องเอา overflow-hidden ออก */}
-      <div className="bg-white rounded-[1rem] shadow-sm border border-gray-100 relative overflow-hidden">
+      <div className="bg-white rounded-[1rem] shadow-sm border border-gray-100 relative overflow-visible">
         <table className="w-full text-left">
           <thead className="bg-white border-b border-gray-100">
             <tr>
@@ -85,42 +85,33 @@ export default function AdminMaterials() {
                 <td className="px-8 py-5 text-center text-blue-400 cursor-pointer hover:underline" onClick={() => navigate(`/admin/materials/${item.id}`)}>
                   ดูรายละเอียด
                 </td>   
-                <td className="px-8 py-5 text-center relative">
-                  <button 
-                    onClick={() => setOpenMenuId(openMenuId === item.id ? null : item.id)}
-                    className="p-2 text-gray-400 hover:bg-gray-100 rounded-full relative z-30"
-                  >
-                    <FaEllipsisV size={14} />
-                  </button>
+               <td className="px-8 py-5 text-center">
+            {/* คอนเทนเนอร์สำหรับจัดกลุ่มปุ่มให้อยู่แนวนอนและอยู่ตรงกลาง */}
+            <div className="flex justify-center items-center gap-2">
+    
+            {/* ปุ่มแก้ไข */}
+            <button 
+              onClick={() => navigate(`/admin/material/add`, { state: { editData: item }})}
+              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+              title="แก้ไข"
+          >
+              <FaEdit size={18} />
+            </button>
 
-                  {/* Dropdown - ปรับขนาดให้แคบตามที่คุณต้องการ */}
-                  {openMenuId === item.id && (
-                    <div className="absolute right-10 top-12 bg-white border border-gray-100 shadow-2xl rounded-2xl p-1 z-30 min-w-[50px] flex flex-col items-center">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation(); // หยุดการคลิกไม่ให้ไปโดน Overlay
-                        navigate("/admin/material/add", { state: { editData: item}})
-                          setOpenMenuId(null);
-                        }}
-                        className="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors w-full flex justify-center"
-                      >
-                        <FaEdit size={16} />
-                      </button>
-                      
-                      <div className="h-[1px] bg-gray-100 w-8" />
-                      
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation(); // หยุดการคลิกเพื่อให้ handleDelete ทำงาน
-                          handleDelete(item.id);
-                        }}
-                        className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors w-full flex justify-center"
-                      >
-                        <FaTrash size={16} />
-                      </button>
-                    </div>
-                  )}
-                </td>
+            {/* เส้นคั่นบางๆ (ใส่หรือไม่ใส่ก็ได้ครับ) */}
+            <div className="w-[1px] h-4 bg-gray-200" />
+
+            {/* ปุ่มลบ */}
+            <button 
+              onClick={() => handleDelete(item.id)}
+              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
+              title="ลบ"
+            >
+              <FaTrash size={17} />
+            </button>
+    
+          </div>
+        </td>
               </tr>
             ))}
           </tbody>

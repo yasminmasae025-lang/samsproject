@@ -32,9 +32,9 @@ export default function AdminUserManagement() {
 
   // ฟังก์ชันเปิด Modal แก้ไข
   const openEditModal = (user) => {
-    setSelectedUser({ ...user }); // คัดลอกข้อมูลผู้ใช้ใส่ state
+    setSelectedUser({ ...user }); 
     setIsEditModalOpen(true);
-    setOpenMenuId(null); // ปิด dropdown
+    setOpenMenuId(null); 
   };
 
   // ฟังก์ชันบันทึกการแก้ไข
