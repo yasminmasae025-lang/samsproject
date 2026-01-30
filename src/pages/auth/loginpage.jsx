@@ -5,11 +5,11 @@ import MyLogo from "../../assets/mylogo.png";
 export default function LoginPage() {
   // 1. สร้าง State เพื่อเลือกว่าเป็น Admin หรือ User (ค่าเริ่มต้นเป็น User)
   const [role, setRole] = useState("user"); 
-  const [email, setEmail] = useState("");
+  const [empCode, setEmpCode] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
   e.preventDefault();
   
   if (role === "admin") {
@@ -17,7 +17,7 @@ export default function LoginPage() {
     navigate("/admin/dashboard"); 
   } else {
     // ถ้าเลือกเป็น User ให้ไปหน้าแรกของ User ปกติ
-    navigate("/user/material"); 
+    navigate("/user/meterial"); 
   }
 };
 
@@ -61,15 +61,23 @@ export default function LoginPage() {
           <form onSubmit={handleLogin} className="space-y- text-left">
             {/* Input อีเมล */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-gray-900 ml-1">อีเมล</label>
+              <label className="text-xs font-bold text-gray-900 ml-1">รหัสพนักงาน</label>
               <input
+                type="text"
+                placeholder="EMP001"
+                value={empCode}
+                onChange={(e) => setEmpCode(e.target.value)}
+                className="w-full px-5 py-4 rounded-2xl bg-[#F8F9FA] border-none outline-none focus:ring-2 focus:ring-black/5 text-sm"
+                required
+              />
+              {/* <input
                 type="email"
                 placeholder="min123@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-5 py-4 rounded-2xl bg-[#F8F9FA] border-none outline-none focus:ring-2 focus:ring-black/5 text-sm"
                 required
-              />
+              /> */}
             </div>
 
             {/* Input รหัสผ่าน */}

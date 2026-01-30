@@ -95,7 +95,7 @@ export default function BorrowMaterialPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-200 p-6">
       {/* Container หลักพื้นหลังสีขาว */}
       <div className="mx-auto max-w-7xl rounded-2xl bg-white p-8 shadow-sm">
         
