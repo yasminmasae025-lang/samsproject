@@ -10,6 +10,7 @@ export default function ProfilePage() {
 
   // ================== LOAD USER FROM BACKEND ==================
   useEffect(() => {
+
   const storedUser = localStorage.getItem("user");
 
   if (!storedUser) {
@@ -17,18 +18,30 @@ export default function ProfilePage() {
     return;
   }
 
-  const data = JSON.parse(storedUser);
+  const user = JSON.parse(storedUser);
 
-  setUserData({
-    name: data.full_name,
-    position: data.position,
-    branch: data.branch_id,
-    employeeId: data.emp_code,
-    phone: data.phone,
-    email: data.email,
-  });
+  fetch(`http://127.0.0.1:8000/users?emp_code=${user.emp_code}`)
+    .then(res => res.json())
+    .then(data => {
+
+      console.log("PROFILE DATA:", JSON.stringify(data, null, 2));
+
+      setUserData({
+        name: data.full_name,
+        position: data.position,
+        branch: data.branch_id,
+        employeeId: data.emp_code,
+        phone: data.phone,
+        email: data.email,
+      });
+
+    })
+    .catch(err => {
+      console.error(err);
+      alert("โหลดข้อมูลผู้ใช้ไม่สำเร็จ");
+    });
+
 }, []);
-
 
   // ================== IMAGE ==================
   const triggerFileInput = () => {
@@ -110,12 +123,6 @@ export default function ProfilePage() {
               <InfoItem label="รหัสพนักงาน" value={userData.employeeId} />
             </InfoBox>
               
-            
-
-            {/* ข้อมูลติดต่อ */}
-            {/* <div className="rounded-2xl bg-gray-50/50 p-8 border border-gray-100">
-              <h2 className="font-bold text-gray-900 mb-6 border-b pb-2 inline-block border-black text-left">ข้อมูลติดต่อ</h2>
-              <div className="space-y-4"> */}
             <InfoBox title="ข้อมูลติดต่อ">
               <InfoItem label="เบอร์โทรศัพท์" value={userData.phone} />
               <InfoItem label="อีเมล" value={userData.email} />
@@ -125,21 +132,8 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
-    //     </div>
-    //   </div>
-    // );
   );
 }
-
-// Component ย่อยสำหรับแสดงแต่ละแถวของข้อมูล
-// function InfoItem({ label, value }) {
-//   return (
-//     <div className="flex justify-between items-center text-sm border-b border-gray-100 pb-2 last:border-0">
-//       <span className="text-gray-500 font-medium">{label} :</span>
-//       <span className="text-gray-900 font-semibold">{value}</span>
-//     </div>
-//   );
-// }
 
 // ================== COMPONENTS ==================
 function InfoBox({ title, children }) {

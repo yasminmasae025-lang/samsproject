@@ -34,6 +34,7 @@ export default function AppRoutes() {
       <Route path="/admin/materials" element={<AdminMaterials />} />
       <Route path="/admin/material/add" element={<AddMaterials />} />
       <Route path="/admin/materials/:id" element={<MaterialDetail />} />
+      <Route path="/admin/material/add/:id" element={<AddMaterials />} />
       <Route path="/admin/users" element={<AdminUserManagement />} />
       <Route path="/admin/requests" element={<AdminRequestListPage />} />
       <Route path="/admin/request-detail/:id" element={<AdminRequestDetailPage />} />

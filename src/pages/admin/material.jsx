@@ -1,42 +1,65 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaHome, FaPlus, FaEllipsisV, FaChevronDown, FaTrash, FaEdit } from "react-icons/fa";
+import api from "../../services/api";
 
 export default function AdminMaterials() {
   const navigate = useNavigate();
-  const [filterType, setFilterType] = useState("ประเภท");
-  const [materials, setMaterials] = useState(() => 
-    JSON.parse(localStorage.getItem("admin_materials") || "[]")
-  ); 
-  const [openMenuId, setOpenMenuId] = useState(null);
+  const [materialTypes, setMaterialTypes] = useState([]);
+  const [materials, setMaterials] = useState([]);
+  const [selectedType, setSelectedType] = useState("");
 
-  const handleDelete = (id) => {
-    if (window.confirm("คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?")) {
-      const currentData = JSON.parse(localStorage.getItem("admin_materials") || "[]");
-      const updatedData = currentData.filter(item => String(item.id) !== String(id));
-      localStorage.setItem("admin_materials", JSON.stringify(updatedData));
-      setMaterials(updatedData);
-      setOpenMenuId(null);
-      alert("ลบรายการสำเร็จแล้ว");
+  const handleDelete = async (id) => {
+  if (window.confirm("คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?")) {
+
+    await api.delete(`/materials/${id}`);
+    await loadMaterials(); // โหลดข้อมูลใหม่
+
+    alert("ลบรายการสำเร็จแล้ว");
+  }
+};
+
+  useEffect(() => {
+      loadMaterialTypes();
+  }, []);
+  
+  useEffect(() => {
+  loadMaterials();
+  }, [selectedType]);
+
+    const loadMaterials = async () => {
+  try {
+    let url = "/materials";
+
+    if (selectedType) {
+      url += `?mat_type_id=${selectedType}`;
     }
+
+    const res = await api.get(url);
+    setMaterials(res.data);
+
+  } catch (err) {
+    console.error("โหลดวัสดุไม่สำเร็จ", err);
+  }
+};
+
+  
+  const loadMaterialTypes = async () => {
+  try {
+    const res = await api.get("/material-type");
+    setMaterialTypes(res.data);
+  } catch (err) {
+    console.error("โหลดประเภทวัสดุไม่สำเร็จ", err);
+  }
   };
 
-  const filteredMaterials = materials.filter((item) => {
-    if (filterType === "ประเภท") return true;
-    return item.type === filterType || (filterType === "สลิปฝาก-ถอน" && item.type === "slip");
-  });
+  const handleTypeChange = (typeId) => {
+  setSelectedType(typeId);
+};
+
 
   return (
     <div className="p-5 bg-gray-100 min-h-screen text-left relative">
-      
-      {/* 1. Overlay (แผ่นใส) - ต้องไม่มี z-index หรือมีแค่ z-10 */}
-      {openMenuId !== null && (
-        <div 
-          className="fixed inset-0 z-20 bg-transparent" 
-          onClick={() => setOpenMenuId(null)} 
-        />
-      )}
-
       {/* Header */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-3">
         <div className="flex items-center justify-between mb-8">
@@ -51,11 +74,20 @@ export default function AdminMaterials() {
         </div>
 
         <div className="relative inline-block">
-          <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="appearance-none border-2 border-[#157282] text-[#157282] py-2 px-6 pr-12 rounded-xl font-bold text-sm outline-none cursor-pointer">
-            <option value="ประเภท">ประเภททั้งหมด</option>
-            <option value="สลิปฝาก-ถอน">สลิปฝาก-ถอน</option>
-            <option value="สมุดเงินฝาก">สมุดเงินฝาก</option>
-          </select>
+          <select
+              value={selectedType}
+              onChange={(e) => handleTypeChange(e.target.value)}
+              className="appearance-none border-2 border-[#157282] text-[#157282] py-2 px-6 pr-12 rounded-xl font-bold text-sm outline-none cursor-pointer"
+            >
+              <option value="">ประเภททั้งหมด</option>
+
+              {materialTypes.map((type) => (
+                <option key={type.mat_type_id} value={type.mat_type_id}>
+                  {type.mat_type_name}
+                </option>
+              ))}
+            </select>
+
           <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#157282]"><FaChevronDown size={14} /></div>
         </div>
       </div>
@@ -75,54 +107,54 @@ export default function AdminMaterials() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {filteredMaterials.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-50/50">
-                <td className="px-8 py-5 text-sm text-gray-700">{item.id}</td>
-                <td className="px-8 py-5 text-sm text-gray-700 font-medium">{item.name}</td>
-                <td className="px-8 py-5 text-sm text-gray-600">{item.type}</td>
-                <td className="px-8 py-5 text-sm text-gray-800 font-bold text-center">{item.amount}</td>
-                <td className="px-8 py-5 text-sm text-gray-600">{item.date}</td>
-                <td className="px-8 py-5 text-center text-blue-400 cursor-pointer hover:underline" onClick={() => navigate(`/admin/materials/${item.id}`)}>
-                  ดูรายละเอียด
-                </td>   
-                <td className="px-8 py-5 text-center relative">
-                  <button 
-                    onClick={() => setOpenMenuId(openMenuId === item.id ? null : item.id)}
-                    className="p-2 text-gray-400 hover:bg-gray-100 rounded-full relative z-30"
-                  >
-                    <FaEllipsisV size={14} />
-                  </button>
-
-                  {/* Dropdown - ปรับขนาดให้แคบตามที่คุณต้องการ */}
-                  {openMenuId === item.id && (
-                    <div className="absolute right-10 top-12 bg-white border border-gray-100 shadow-2xl rounded-2xl p-1 z-30 min-w-[50px] flex flex-col items-center">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation(); // หยุดการคลิกไม่ให้ไปโดน Overlay
-                        navigate("/admin/material/add", { state: { editData: item}})
-                          setOpenMenuId(null);
-                        }}
-                        className="p-3 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors w-full flex justify-center"
-                      >
-                        <FaEdit size={16} />
-                      </button>
-                      
-                      <div className="h-[1px] bg-gray-100 w-8" />
-                      
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation(); // หยุดการคลิกเพื่อให้ handleDelete ทำงาน
-                          handleDelete(item.id);
-                        }}
-                        className="p-3 text-red-600 hover:bg-red-50 rounded-xl transition-colors w-full flex justify-center"
-                      >
-                        <FaTrash size={16} />
-                      </button>
-                    </div>
-                  )}
+            {materials.length === 0 ? (
+              <tr>
+                <td
+                  colSpan="7"
+                  className="text-center py-10 text-gray-400 font-medium"
+                >
+                  ไม่พบข้อมูลในประเภทนี้
                 </td>
               </tr>
-            ))}
+            ) : (
+              materials.map((m) => (
+                <tr key={m.mat_id} className="hover:bg-gray-50/50">
+                  <td className="px-8 py-5 text-sm text-gray-700">{m.mat_code}</td>
+                  <td className="px-8 py-5 text-sm text-gray-700 font-medium">{m.mat_name}</td>
+                  <td className="px-8 py-5 text-sm text-gray-600">{m.mat_type}</td>
+                  <td className="px-8 py-5 text-sm text-gray-800 font-bold text-center">{m.import_qty}</td>
+                  <td className="px-8 py-5 text-sm text-gray-600">{m.import_date
+                    ? new Date(m.import_date).toLocaleDateString("th-TH")
+                    : "-"}</td>
+                  <td className="px-8 py-5 text-center text-blue-400 cursor-pointer hover:underline" onClick={() => navigate(`/admin/materials/${m.mat_id}`)}>
+                    ดูรายละเอียด
+                  </td>
+                  <td className="px-8 py-5 text-center">
+                      <div className="flex justify-center gap-3">
+
+                        {/* EDIT */}
+                        <button
+                          onClick={() => navigate(`/admin/material/add/${m.mat_id}`)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition"
+                          title="แก้ไข"
+                        >
+                          <FaEdit size={16} />
+                        </button>
+
+                        {/* DELETE */}
+                        <button
+                          onClick={() => handleDelete(m.mat_id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-xl transition"
+                          title="ลบ"
+                        >
+                          <FaTrash size={16} />
+                        </button>
+
+                      </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

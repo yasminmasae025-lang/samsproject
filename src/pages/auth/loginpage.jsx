@@ -11,13 +11,49 @@ export default function LoginPage() {
 
   const handleLogin = async (e) => {
   e.preventDefault();
-  
-  if (role === "admin") {
-    // ถ้าเลือกเป็น Admin ให้ไปที่หน้า Dashboard ของ Admin
-    navigate("/admin/dashboard"); 
-  } else {
-    // ถ้าเลือกเป็น User ให้ไปหน้าแรกของ User ปกติ
-    navigate("/user/meterial"); 
+
+  try {
+    const res = await fetch("http://127.0.0.1:8000/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        emp_code: empCode,
+        password: password,
+      }),
+    });
+
+    if (!res.ok) {
+      alert("รหัสพนักงานหรือรหัสผ่านไม่ถูกต้อง");
+      return;
+    }
+
+    const data = await res.json();
+
+    const user = data.user; // ✅ ตรงนี้แหละที่ขาด
+
+    console.log("LOGIN USER:", JSON.stringify(user, null, 2));
+
+    // 🔐 Admin mode → ต้องเป็น Superadmin เท่านั้น
+    if (role === "admin" && user.role !== "Superadmin") {
+      alert("คุณไม่มีสิทธิ์เข้าโหมด Admin");
+      return;
+    }
+
+    // ✅ เก็บ user
+    localStorage.setItem("user", JSON.stringify(user));
+
+    // 🚀 redirect ตาม role จริงจาก backend
+    if (user.role === "Superadmin") {
+      navigate("/admin/dashboard");
+    } else {
+      navigate("/borrow-material");
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("เชื่อมต่อ backend ไม่ได้");
   }
 };
 
@@ -59,7 +95,7 @@ export default function LoginPage() {
           <h2 className="text-xl font-bold text-gray-900 mb-4">เข้าสู่ระบบ</h2>
           
           <form onSubmit={handleLogin} className="space-y- text-left">
-            {/* Input อีเมล */}
+            {/* Input EMP */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-gray-900 ml-1">รหัสพนักงาน</label>
               <input
@@ -70,14 +106,6 @@ export default function LoginPage() {
                 className="w-full px-5 py-4 rounded-2xl bg-[#F8F9FA] border-none outline-none focus:ring-2 focus:ring-black/5 text-sm"
                 required
               />
-              {/* <input
-                type="email"
-                placeholder="min123@gmail.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-5 py-4 rounded-2xl bg-[#F8F9FA] border-none outline-none focus:ring-2 focus:ring-black/5 text-sm"
-                required
-              /> */}
             </div>
 
             {/* Input รหัสผ่าน */}

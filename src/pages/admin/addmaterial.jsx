@@ -1,14 +1,24 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { FaHome } from "react-icons/fa";
 import { HiChevronDown } from "react-icons/hi";
+import api from "../../services/api";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function AddMaterial() {
   const navigate = useNavigate();
-  
+  const [loading, setLoading] = useState(false);
+  const { id } = useParams();
+
   const [formData, setFormData] = useState({
-    id: "", name: "", type: "", unit: "", unitPrice: "",
-    countUnit: "", pricePerUnit: "", amount: "", date: "", details: "",
+    mat_code: "",
+    mat_name: "",
+    mat_type_id: "",
+    unit_pack: "",
+    qty_per_pack: "",
+    unit_sub: "",
+    price_per_pack: "",
+    stock_qty: "",
+    import_date: "" 
   });
 
   const handleChange = (e) => {
@@ -16,28 +26,93 @@ export default function AddMaterial() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    // 1. ดึงข้อมูลวัสดุที่มีอยู่แล้วจาก localStorage (ถ้าไม่มีให้เป็น Array ว่าง)
-    const existingMaterials = JSON.parse(localStorage.getItem("admin_materials") || "[]");
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  console.log("SUBMIT WORKING");
 
-    // 2. สร้างก้อนข้อมูลใหม่
-    const newEntry = {
-      ...formData,
-      amount: Number(formData.amount) // แปลงเป็นตัวเลขเพื่อให้คำนวณง่ายในอนาคต
-    };
-
-    // 3. เพิ่มข้อมูลใหม่ลงไปในรายการเดิม
-    const updatedMaterials = [newEntry, ...existingMaterials];
-
-    // 4. บันทึกกลับลง localStorage
-    localStorage.setItem("admin_materials", JSON.stringify(updatedMaterials));
-
-    // 5. แจ้งเตือนและกลับไปหน้ารายการ
-    alert("บันทึกข้อมูลสำเร็จ");
-    navigate("/admin/materials"); // กลับไปหน้ารายการวัสดุ
+  const payload = {
+    mat_code: formData.mat_code,
+    mat_name: formData.mat_name,
+    mat_type_id: formData.mat_type_id,
+    unit_pack: formData.unit_pack,
+    qty_per_pack: Number(formData.qty_per_pack),
+    unit_sub: formData.unit_sub,
+    price_per_pack: Number(formData.price_per_pack),
+    stock_qty: Number(formData.stock_qty)
   };
+
+  console.log("PAYLOAD =>", payload);
+
+  try {
+
+    if (id) {
+        await api.put(`/materials/${id}`, payload);
+        alert("แก้ไขข้อมูลสำเร็จ");
+      } else {
+        await api.post("/materials", payload);
+        alert("เพิ่มข้อมูลสำเร็จ");
+      }
+
+    navigate("/admin/materials", { replace: true });
+
+  } catch (err) {
+    console.error(err);
+    alert("บันทึกไม่สำเร็จ");
+  }
+  };
+
+  const [materialTypes, setMaterialTypes] = useState([]);
+
+  useEffect(() => {
+    loadMaterialTypes();
+  }, []);
+
+  const loadMaterialTypes = async () => {
+    try {
+      const res = await api.get("/material-type");
+      setMaterialTypes(res.data);
+    } catch (err) {
+      console.error("โหลดประเภทวัสดุไม่สำเร็จ", err);
+    }
+  };
+
+  useEffect(() => {
+  if (id && materialTypes.length > 0) {
+    fetchMaterialDetail(id);
+  }
+  }, [id, materialTypes]);
+  
+
+const fetchMaterialDetail = async (id) => {
+  try {
+    const res = await api.get(`/materials/${id}`);
+    const d = res.data;
+
+    const foundType = materialTypes.find(
+      t => t.mat_type_name === d.mat_type
+    );
+
+    setFormData({
+      mat_code: d.mat_code ?? "",
+      mat_name: d.mat_name ?? "",
+      mat_type_id: foundType ? String(foundType.mat_type_id) : "",
+      unit_pack: d.unit_pack ?? "",
+      qty_per_pack: d.qty_per_pack?.toString() ?? "",
+      unit_sub: d.unit_sub ?? "",
+      price_per_pack: d.price_per_pack?.toString() ?? "",
+      stock_qty: d.import_qty?.toString() ?? "",
+      import_date: d.import_date
+        ? d.import_date.split("T")[0]
+        : ""
+    });
+
+  } catch (err) {
+    console.error(err);
+    alert("โหลดข้อมูลไม่สำเร็จ");
+  }
+};
+
+
 
   return (
     /* เปลี่ยนจาก h-full เป็น min-h-screen และเอา overflow-hidden ออกเพื่อให้เลื่อนได้ */
@@ -62,10 +137,11 @@ export default function AddMaterial() {
           {/* แถว: รหัสวัสดุ */}
           <div className="max-w-4xl">
             <label className="block text-[14px] font-bold text-gray-900 mb-2 ml-1">รหัสวัสดุ</label>
-            <input
+            <input 
               type="text"
-              name="id"
+              name="mat_code"
               placeholder="กรอกรหัสวัสดุ"
+              value={formData.mat_code}
               onChange={handleChange}
               className="w-full p-3 px-5 rounded-2xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:border-blue-400 outline-none transition-all text-sm placeholder:text-gray-300"
             />
@@ -76,8 +152,9 @@ export default function AddMaterial() {
             <label className="block text-[14px] font-bold text-gray-900 mb-2 ml-1">ชื่อวัสดุ</label>
             <input
               type="text"
-              name="name"
+              name="mat_name"
               placeholder="กรอกชื่อวัสดุ"
+              value={formData.mat_name}
               onChange={handleChange}
               className="w-full p-3 px-5 rounded-2xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:border-blue-400 outline-none transition-all text-sm placeholder:text-gray-300"
             />
@@ -85,21 +162,40 @@ export default function AddMaterial() {
 
           {/* แถว: ประเภทวัสดุ */}
           <div className="relative max-w-4xl">
-            <label className="block text-[14px] font-bold text-gray-900 mb-2 ml-1">ประเภทวัสดุ</label>
+            <label className="block text-[14px] font-bold text-gray-900 mb-2 ml-1">
+              ประเภทวัสดุ
+            </label>
+
             <div className="relative">
               <select
-                name="type"
+                name="mat_type_id"
+                value={formData.mat_type_id}
                 onChange={handleChange}
                 required
-                className="w-full p-3 px-5 rounded-2xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:border-blue-400 outline-none appearance-none cursor-pointer transition-all text-sm text-gray-400"
+                className="w-full p-3 px-5 rounded-2xl bg-gray-50/50 border border-gray-100
+                          focus:bg-white focus:border-blue-400 outline-none appearance-none cursor-pointer transition-all text-sm placeholder:text-gray-300"      
               >
-                <option value="">เลือกประเภท</option>
-                              <option value="สลิปฝาก-ถอน">สลิปฝาก-ถอน</option>
-                              <option value="สมุดเงินฝาก">สมุดเงินฝาก</option>
+                <option value="" disabled hidden>
+                  เลือกประเภท
+                </option>
+
+                {materialTypes.map((type) => (
+                  <option
+                    key={type.mat_type_id}
+                    value={type.mat_type_id}
+                  >
+                    {type.mat_type_name}
+                  </option>
+                ))}
               </select>
-              <HiChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+
+              <HiChevronDown
+                className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
+                size={20}
+              />
             </div>
           </div>
+
 
           {/* แถว 3 ช่อง: หน่วย, หน่วยละ, หน่วยนับ */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl">
@@ -107,8 +203,9 @@ export default function AddMaterial() {
               <label className="block text-[14px] font-bold text-gray-900 mb-2 ml-1">หน่วย</label>
               <input
                 type="text"
-                name="unit"
+                name="unit_pack"
                 placeholder="กรอกหน่วย"
+                value={formData.unit_pack}
                 onChange={handleChange}
                 className="w-full p-3 px-5 rounded-2xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:border-blue-400 outline-none transition-all text-sm placeholder:text-gray-300"
               />
@@ -116,9 +213,10 @@ export default function AddMaterial() {
             <div>
               <label className="block text-[14px] font-bold text-gray-900 mb-2 ml-1">หน่วยละ</label>
               <input
-                type="text"
-                name="unitPrice"
+                type="number"
+                name="qty_per_pack"
                 placeholder="กรอกหน่วยละ"
+                value={formData.qty_per_pack}
                 onChange={handleChange}
                 className="w-full p-3 px-5 rounded-2xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:border-blue-400 outline-none transition-all text-sm placeholder:text-gray-300"
               />
@@ -127,8 +225,9 @@ export default function AddMaterial() {
               <label className="block text-[14px] font-bold text-gray-900 mb-2 ml-1">หน่วยนับ</label>
               <input
                 type="text"
-                name="countUnit"
+                name="unit_sub"
                 placeholder="กรอกหน่วยนับ"
+                value={formData.unit_sub}
                 onChange={handleChange}
                 className="w-full p-3 px-5 rounded-2xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:border-blue-400 outline-none transition-all text-sm placeholder:text-gray-300"
               />
@@ -140,9 +239,10 @@ export default function AddMaterial() {
             <div>
               <label className="block text-[14px] font-bold text-gray-900 mb-2 ml-1">ราคาหน่วยละ</label>
               <input
-                type="text"
-                name="pricePerUnit"
+                type="number"
+                name="price_per_pack"
                 placeholder="กรอกราคาหน่วยละ"
+                value={formData.price_per_pack}
                 onChange={handleChange}
                 className="w-full p-3 px-5 rounded-2xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:border-blue-400 outline-none transition-all text-sm placeholder:text-gray-300"
               />
@@ -151,8 +251,9 @@ export default function AddMaterial() {
               <label className="block text-[14px] font-bold text-gray-900 mb-2 ml-1">จำนวนที่นำเข้า</label>
               <input
                 type="number"
-                name="amount"
+                name="stock_qty"
                 placeholder="กรอกจำนวนที่นำเข้า"
+                value={formData.stock_qty}
                 onChange={handleChange}
                 className="w-full p-3 px-5 rounded-2xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:border-blue-400 outline-none transition-all text-sm placeholder:text-gray-300"
               />
@@ -163,11 +264,13 @@ export default function AddMaterial() {
           <div className="max-w-4xl">
             <label className="block text-[14px] font-bold text-gray-900 mb-2 ml-1">วันที่นำเข้า</label>
             <input
-              type="text"
-              name="date"
+              type="date"
+              name="import_date"
+              lang="en-GB"
               placeholder="กรอกวันที่นำเข้า"
+              value={formData.import_date}
               onChange={handleChange}
-              className="w-full p-3 px-5 rounded-2xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:border-blue-400 outline-none transition-all text-sm placeholder:text-gray-300"
+              className="w-full p-3 px-5 rounded-2xl bg-gray-50/50 border border-gray-100 focus:bg-white focus:border-blue-400 outline-none transition-all text-sm placeholder:text-gray-900"
             />
           </div>
           
@@ -190,5 +293,5 @@ export default function AddMaterial() {
         </form>
       </div>
     </div>
-  );
+);
 }

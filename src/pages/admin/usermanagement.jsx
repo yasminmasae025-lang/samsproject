@@ -1,34 +1,31 @@
-
-import { useState } from "react";
 import { FaPlus, FaEllipsisV, FaUsers, FaTrash, FaEdit, FaKey } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminUserManagement() {
+  const navigate = useNavigate();
+
+// export default function AdminUserManagement() {
   const [activeTab, setActiveTab] = useState("ทั้งหมด");
   const [openMenuId, setOpenMenuId] = useState(null);
+  // const usersArray = Array.isArray(data) ? data : [data, data];
   
   // State สำหรับ Modal แก้ไข
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-
-  // ดึงข้อมูลผู้ใช้จาก localStorage หรือใช้ค่าเริ่มต้น
-  const [users, setUsers] = useState(() => {
-    const saved = localStorage.getItem("admin_users");
-    return saved ? JSON.parse(saved) : [
-      { id: "01", name: "วาสนา จิตใจ", role: "เจ้าหน้าที่พัสดุ", branch: "001 หาดใหญ่", servicePoint: "เคาน์เตอร์", username: "user001" },
-      { id: "02", name: "มิน มาซาเอะ", role: "Admin", branch: "ส่วนกลาง", servicePoint: "ตึกE", username: "admin01" },
-    ];
-  });
+  const [users, setUsers] = useState([]);
 
   // ฟังก์ชันลบผู้ใช้
+
   const handleDeleteUser = (id) => {
     if (window.confirm("คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้คนนี้?")) {
-      const updatedData = users.filter(user => String(user.id) !== String(id));
-      setUsers(updatedData);
-      localStorage.setItem("admin_users", JSON.stringify(updatedData));
+      setUsers(users.filter(user => user.id !== id));
       setOpenMenuId(null);
       alert("ลบผู้ใช้สำเร็จแล้ว");
     }
   };
+
+
 
   // ฟังก์ชันเปิด Modal แก้ไข
   const openEditModal = (user) => {
@@ -41,7 +38,7 @@ export default function AdminUserManagement() {
   const handleSaveEdit = () => {
     const updatedUsers = users.map(u => u.id === selectedUser.id ? selectedUser : u);
     setUsers(updatedUsers);
-    localStorage.setItem("admin_users", JSON.stringify(updatedUsers));
+    localStorage.setItem("users", JSON.stringify(user))
     setIsEditModalOpen(false);
     alert("อัปเดตข้อมูลสำเร็จ");
   };
@@ -51,6 +48,41 @@ export default function AdminUserManagement() {
     alert(`ระบบได้รีเซ็ตรหัสผ่านของ ${username} เป็น '123456' เรียบร้อยแล้ว`);
     setOpenMenuId(null);
   };
+
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/users/all")
+      .then(res => res.json())
+      .then(data => {
+      //   console.log("API USERS:", data);
+      
+  
+      // // 🔹 แปลง object → array
+      // const usersArray = Array.isArray(data) ? data : [data];
+
+      const mappedUsers = data.map(u => ({
+        id: u.user_id,
+        name: u.full_name,
+        role: u.user_role,
+        branch: u.branch_id,
+        servicePoint: u.service_point_id ?? "-",
+        username: u.emp_code
+      }));
+
+      // const uniqueUsers = Object.values(
+      //   mappedUsers.reduce((acc, u) => {
+      //     if (!acc[u.id]) acc[u.id] = u;
+      //     return acc;
+      //   }, {})
+      // );
+
+      // setUsers(uniqueUsers);
+      setUsers(mappedUsers);
+    })
+    .catch(err => {
+      console.error("โหลดข้อมูลผู้ใช้ไม่สำเร็จ", err);
+    });
+}, []);
+
 
   return (
     <div className="p-5 bg-gray-100 min-h-screen text-left relative">
@@ -104,15 +136,15 @@ export default function AdminUserManagement() {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {users.map((user) => (
-              <tr key={user.id} className="hover:bg-gray-50/50">
-                <td className="px-8 py-5 text-sm text-gray-700">{user.id}</td>
+              <tr key={user.username} className="hover:bg-gray-50/50">
+                <td className="px-8 py-5 text-sm text-gray-700">{user.username}</td>
                 <td className="px-8 py-5 text-sm text-gray-700 font-medium">{user.name}</td>
                 <td className={`px-8 py-5 text-sm ${user.role === "Admin" ? "text-pink-300" : "text-gray-600"}`}>
                   {user.role}
                 </td>
                 <td className="px-8 py-5 text-sm text-gray-600">{user.servicePoint}</td>
                 <td className="px-8 py-5 text-sm text-gray-600">{user.branch}</td>
-                <td className="px-8 py-5 text-sm text-gray-600">{user.username}</td>
+                <td className="px-8 py-5 text-sm text-gray-600">{user.id}</td>
                 <td className="px-8 py-5 text-center relative">
                   <button 
                     onClick={() => setOpenMenuId(openMenuId === user.id ? null : user.id)}

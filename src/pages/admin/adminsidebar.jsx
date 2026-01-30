@@ -21,18 +21,18 @@ export default function AdminSidebar() {
         { name: "รายการวัสดุสำนักงาน", path: "/admin/materials", icon: <FaBox /> },
       ]
     },
-    {
-      title: "จัดการครุภัณฑ์",
-      items: [
-        { name: "รายการครุภัณฑ์", path: "/admin/equipment", icon: <FaLaptop /> },
-      ]
-    },
-    {
-      title: "จัดการตรวจสอบการขอคืนครุภัณฑ์",
-      items: [
-        { name: "รายการคำขอคืนครุภัณฑ์", path: "/admin/returns", icon: <FaClipboardList /> },
-      ]
-    },
+    // {
+    //   title: "จัดการครุภัณฑ์",
+    //   items: [
+    //     { name: "รายการครุภัณฑ์", path: "/admin/equipment", icon: <FaLaptop /> },
+    //   ]
+    // },
+    // {
+    //   title: "จัดการตรวจสอบการขอคืนครุภัณฑ์",
+    //   items: [
+    //     { name: "รายการคำขอคืนครุภัณฑ์", path: "/admin/returns", icon: <FaClipboardList /> },
+    //   ]
+    // },
     {
       title: "จัดการตรวจสอบการอนุมัติการเบิก",
       items: [

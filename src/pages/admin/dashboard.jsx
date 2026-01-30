@@ -10,7 +10,8 @@ export default function AdminDashboard() {
     { label: "จำนวนครุภัณฑ์ทั้งหมด", value: "0 รายการ", icon: <FaLayerGroup className="text-blue-400" />, bg: "bg-white" },
   ];
 
-  return (
+  
+return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-4">Dashbord</h1>
       
