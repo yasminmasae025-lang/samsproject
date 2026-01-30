@@ -87,7 +87,7 @@ export default function RequestDetailPage() {
         </div>
 
         {/* ส่วนที่ 2: อัปเดตสถานะ */}
-        <div className="md:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-00">
+        <div className="md:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
           <h3 className="font-bold mb-4 text-sm border-b pb-2">อัปเดตสถานะ:</h3>
           <div className="space-y-4">
             <div className="bg-blue-50 text-blue-400 p-3 rounded-xl text-center font-bold text-sm">

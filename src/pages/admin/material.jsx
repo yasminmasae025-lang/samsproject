@@ -8,6 +8,7 @@ export default function AdminMaterials() {
   const [materialTypes, setMaterialTypes] = useState([]);
   const [materials, setMaterials] = useState([]);
   const [selectedType, setSelectedType] = useState("");
+  const filteredMaterials = materials;
 
   const handleDelete = async (id) => {
   if (window.confirm("คุณแน่ใจหรือไม่ว่าต้องการลบรายการนี้?")) {
@@ -93,7 +94,7 @@ export default function AdminMaterials() {
       </div>
 
       {/* ตารางข้อมูล - สำคัญ: ต้องเอา overflow-hidden ออก */}
-      <div className="bg-white rounded-[1rem] shadow-sm border border-gray-100 relative overflow-hidden">
+      <div className="bg-white rounded-[1rem] shadow-sm border border-gray-100 relative overflow-visible">
         <table className="w-full text-left">
           <thead className="bg-white border-b border-gray-100">
             <tr>
@@ -107,16 +108,49 @@ export default function AdminMaterials() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {materials.length === 0 ? (
-              <tr>
-                <td
-                  colSpan="7"
-                  className="text-center py-10 text-gray-400 font-medium"
-                >
-                  ไม่พบข้อมูลในประเภทนี้
+
+            {filteredMaterials && filteredMaterials.length > 0 ? (
+              filteredMaterials.map((item) => (
+              <tr key={item.id} className="hover:bg-gray-50/50">
+                <td className="px-8 py-5 text-sm text-gray-700">{item.id}</td>
+                <td className="px-8 py-5 text-sm text-gray-700 font-medium">{item.name}</td>
+                <td className="px-8 py-5 text-sm text-gray-600">{item.type}</td>
+                <td className="px-8 py-5 text-sm text-gray-800 font-bold text-center">{item.amount}</td>
+                <td className="px-8 py-5 text-sm text-gray-600">{item.date}</td>
+                <td className="px-8 py-5 text-center text-blue-400 cursor-pointer hover:underline" onClick={() => navigate(`/admin/materials/${item.id}`)}>
+                  ดูรายละเอียด
+                </td>   
+               <td className="px-8 py-5 text-center">
+            {/* คอนเทนเนอร์สำหรับจัดกลุ่มปุ่มให้อยู่แนวนอนและอยู่ตรงกลาง */}
+            <div className="flex justify-center items-center gap-2">
+    
+            {/* ปุ่มแก้ไข */}
+            <button 
+              onClick={() => navigate(`/admin/material/add`, { state: { editData: item }})}
+              className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+              title="แก้ไข"
+          >
+              <FaEdit size={18} />
+            </button>
+
+            {/* เส้นคั่นบางๆ (ใส่หรือไม่ใส่ก็ได้ครับ) */}
+            <div className="w-[1px] h-4 bg-gray-200" />
+
+            {/* ปุ่มลบ */}
+            <button 
+              onClick={() => handleDelete(item.id)}
+              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
+              title="ลบ"
+            >
+              <FaTrash size={17} />
+            </button>
+    
+          </div>
                 </td>
+                
               </tr>
-            ) : (
+              ))
+              ) : (
               materials.map((m) => (
                 <tr key={m.mat_id} className="hover:bg-gray-50/50">
                   <td className="px-8 py-5 text-sm text-gray-700">{m.mat_code}</td>

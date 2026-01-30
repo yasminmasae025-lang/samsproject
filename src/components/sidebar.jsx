@@ -5,7 +5,6 @@ import logo from "../assets/logo.png";
 
 const menu = [
   { to: "/borrow-material", label: "เบิกวัสดุ", icon: "📦" },
-  // { to: "/equipment", label: "เบิกครุภัณฑ์", icon: "🖥️" },
   { to: "/cart", label: "ตะกร้าเบิกของ", icon: "🛒" },
   { to: "/requests", label: "รายการคำขอ", icon: "🧾" },
   { to: "/history", label: "ประวัติการเบิก", icon: "🕘" },
